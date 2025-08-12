@@ -1,0 +1,16 @@
+pandas
+numpy
+torch
+torch_geometric
+lightgbm
+fuzzywuzzy
+python-Levenshtein
+gspread
+google-auth-oauthlib
+beautifulsoup4
+lxml
+curl_cffi
+joblib
+seaborn
+matplotlib
+scipy
