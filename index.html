@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced WNBA Fantasy Projections</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Advanced WNBA Fantasy Projections</h1>
+            <p class="last-updated-text">Last Updated: <span id="last-updated">Loading...</span></p>
+        </div>
+        <div class="theme-switcher">
+            <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.106a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.894 17.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.894 17.894a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM3 12a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h2.25A.75.75 0 013 12zM6.106 6.106a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/></svg>
+            <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 004.463-.949a.75.75 0 01.82.162l.25.333a.75.75 0 01-.434 1.154A11.373 11.373 0 0112 21.75c-6.494 0-11.522-5.263-11.247-11.724a11.373 11.373 0 013.463-5.324.75.75 0 011.155-.434l.333.25z" clip-rule="evenodd" /></svg>
+        </div>
+    </header>
+    
+    <div class="tabs">
+        <button class="tab-link active" onclick="openTab(event, 'Season')">Season-Long Rankings</button>
+        <button class="tab-link" onclick="openTab(event, 'Daily')">Daily Game Projections</button>
+        <button class="tab-link" onclick="openTab(event, 'TeamAnalysis')">Team Analysis</button>
+        <button class="tab-link" onclick="openTab(event, 'PlayerProgression')">Player Progression</button>
+        <button class="tab-link" onclick="openTab(event, 'CareerAnalysis')">Player Career Analysis</button>
+    </div>
+
+    <main>
+        <div id="Season" class="tab-content active">
+            <div id="season-controls" class="controls-card">
+                <div class="top-filters">
+                    <div class="filter-group">
+                        <label for="season-source-selector">DATA SOURCE</label>
+                        <select id="season-source-selector"></select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="calculation-mode">CALCULATION MODE</label>
+                        <select id="calculation-mode">
+                           <option value="per_game" selected>Per Game</option>
+                           <option value="total">Total</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="show-count">SHOW</label>
+                        <select id="show-count">
+                            <option value="50">Top 50</option>
+                            <option value="100">Top 100</option>
+                            <option value="200" selected>Top 200</option>
+                            <option value="9999">All</option>
+                        </select>
+                    </div>
+                    <div class="filter-group search-group">
+                        <label for="search-player">SEARCH PLAYER</label>
+                        <input type="text" id="search-player" placeholder="e.g., A'ja Wilson">
+                    </div>
+                </div>
+                <div class="bottom-controls">
+                    <div class="category-weights-container">
+                        <p class="weights-title"><strong>Customize Rankings:</strong> Uncheck a category to "punt" it.</p>
+                        <div class="category-weights-grid" id="category-weights-grid"></div>
+                    </div>
+                    <div class="color-guide-container">
+                        <strong>Color Guide (Z-Score):</strong>
+                        <div class="color-guide">
+                            <span class="guide-item elite">Elite</span>
+                            <span class="guide-item very-good">Very Good</span>
+                            <span class="guide-item good">Good</span>
+                            <span class="guide-item average">Average</span>
+                            <span class="guide-item below-average">Below Avg</span>
+                            <span class="guide-item not-good">Not Good</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container card">
+                <table id="predictions-table">
+                    <thead id="predictions-thead"></thead>
+                    <tbody id="predictions-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="Daily" class="tab-content">
+            <div class="controls-card" id="daily-projection-controls">
+                 <div class="top-filters">
+                    <div class="filter-group">
+                        <label>PROJECTION MODE</label>
+                        <div class="mode-toggle-group">
+                            <button id="mode-single-btn" class="mode-toggle-btn active">Single Model</button>
+                            <button id="mode-blend-btn" class="mode-toggle-btn">Blend Models</button>
+                        </div>
+                    </div>
+                    <div id="single-model-controls" class="filter-group">
+                        <label for="daily-model-selector">SELECT MODEL</label>
+                        <select id="daily-model-selector"></select>
+                    </div>
+                    <div class="filter-group" style="flex-grow: 2;">
+                        <label>ACCURACY ANALYSIS</label>
+                        <select id="accuracy-metric-selector">
+                            <option value="cumulativeWinLoss" selected>Cumulative W/L Record</option>
+                            <option value="dailyWinLoss">Daily W/L Accuracy (%)</option>
+                            <option value="scoreCloseness">Game Score Closeness (Abs. Diff)</option>
+                            <option value="PTS">Points MAE</option>
+                            <option value="REB">Rebounds MAE</option>
+                            <option value="AST">Assists MAE</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="blend-model-controls" class="hidden">
+                    <div class="blend-header">
+                        <p class="weights-title"><strong>Model Blending Weights:</strong> Enter a percentage for each model. The projections will be a weighted average.</p>
+                        <button id="normalize-weights-btn" class="button-outline">Normalize to 100%</button>
+                    </div>
+                    <div class="category-weights-grid" id="daily-blend-weights-grid"></div>
+                </div>
+            </div>
+            
+            <div class="card" id="accuracy-chart-container" style="margin-bottom:25px; display:none;">
+                <div class="chart-header">
+                    <h2>Daily Prediction Accuracy Analysis</h2>
+                    <p class="chart-subtitle">Note: Accuracy metrics are calculated based on each model's performance vs. actual results.</p>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="accuracy-chart"></canvas>
+                </div>
+            </div>
+            <div id="daily-controls">
+                <div id="daily-date-tabs"></div>
+            </div>
+            <div id="daily-games-container"></div>
+        </div>
+        
+        <div id="TeamAnalysis" class="tab-content">
+            <div class="controls-card">
+                <p>Team analysis data is sourced from the dataset selected on the 'Season-Long Rankings' tab.</p>
+            </div>
+            <div id="team-analysis-container"></div>
+        </div>
+
+        <div id="PlayerProgression" class="tab-content">
+            <div class="controls-card">
+                 <p>Player progression data compares the selected 2025 projection model to the 2024 actuals.</p>
+            </div>
+            <div id="player-progression-container" class="progression-grid"></div>
+        </div>
+        
+        <div id="CareerAnalysis" class="tab-content">
+            <div id="career-controls" class="controls-card">
+                <div class="top-filters">
+                    <div class="filter-group">
+                        <label for="career-stat-selector">STATISTIC</label>
+                        <select id="career-stat-selector">
+                            <option value="PTS" selected>Points</option>
+                            <option value="REB">Rebounds</option>
+                            <option value="AST">Assists</option>
+                            <option value="STL">Steals</option>
+                            <option value="BLK">Blocks</option>
+                            <option value="3PM">3-Pointers</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="career-xaxis-selector">X-AXIS</label>
+                        <select id="career-xaxis-selector">
+                            <option value="x_games" selected>Games Played</option>
+                            <option value="age">Player Age</option>
+                        </select>
+                    </div>
+                    <div class="filter-group search-group">
+                        <label for="career-search-player">HIGHLIGHT PLAYER(S)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="career-search-player" list="player-datalist" placeholder="e.g., Caitlin Clark" style="flex-grow: 1;">
+                            <button id="career-add-player-btn" class="button-outline">Add</button>
+                            <datalist id="player-datalist"></datalist>
+                        </div>
+                    </div>
+                </div>
+                <div class="bottom-controls" style="margin-top: 20px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                    <div class="filter-group">
+                        <label for="career-draft-filter">FILTER BY DRAFT CLASS</label>
+                        <select id="career-draft-filter">
+                            <option value="All">All Draft Classes</option>
+                            <option value="No. 1 Pick">No. 1 Picks</option>
+                            <option value="Top 5 Pick">Top 5 Picks</option>
+                            <option value="1st Round (6+)">1st Round (6+)</option>
+                            <option value="2nd Round">2nd Round</option>
+                            <option value="3rd+ Round">3rd+ Round</option>
+                            <option value="Undrafted">Undrafted</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="career-minutes-filter">FILTER BY PLAYER MINUTES</label>
+                        <select id="career-minutes-filter">
+                            <option value="0">All Players</option>
+                            <option value="15_career">Career Avg > 15 MPG</option>
+                            <option value="15_game">Games > 15 MPG</option>
+                        </select>
+                    </div>
+                    <div class="filter-group" style="display: flex; align-items: flex-end; justify-content: start;">
+                         <div id="career-chart-toggles" style="display: flex; flex-wrap: wrap; gap: 20px;">
+                            <div class="chart-toggle">
+                                <span class="chart-toggle-label">Show Averages</span>
+                                <label class="chart-toggle-switch">
+                                    <input type="checkbox" id="career-averages-toggle" checked>
+                                    <span class="chart-toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="chart-toggle">
+                                <span class="chart-toggle-label">Color by Team</span>
+                                <label class="chart-toggle-switch">
+                                    <input type="checkbox" id="career-color-by-team-toggle">
+                                    <span class="chart-toggle-slider"></span>
+                                </label>
+                            </div>
+                            <button id="career-clear-players-btn" class="button-outline">Clear Players</button>
+                        </div>
+                    </div>
+                </div>
+                 <div id="career-highlighted-players" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px;"></div>
+            </div>
+            <div id="career-chart-wrapper" class="card">
+                <canvas id="career-chart"></canvas>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="player-profile-overlay" class="grade-overlay">
+        <!-- Player profile modal content is dynamically injected here by script.js -->
+    </div>
+    
+    <footer>
+        <p>© 2024 Advanced WNBA Fantasy Projections. All Rights Reserved.</p>
+    </footer>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
