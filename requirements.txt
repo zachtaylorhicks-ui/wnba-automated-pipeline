@@ -13,4 +13,4 @@ curl_cffi
 joblib
 seaborn
 matplotlib
-scipy
+scipy\nscikit-learn
